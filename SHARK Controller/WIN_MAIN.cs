@@ -703,7 +703,7 @@ namespace SPRK
         {
             if (cb_hostname.Text.ToLower() != "sprk")
             {
-                MessageBox.Show("This is only supported on the offical S.P.R.K!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("This is only supported on the offical S.P.R.K.!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
