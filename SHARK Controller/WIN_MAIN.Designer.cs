@@ -59,13 +59,15 @@
             joystick_rescan = new ToolStripMenuItem();
             tss1 = new ToolStripSeparator();
             joystick_bypass = new ToolStripMenuItem();
-            joystick_configure = new ToolStripMenuItem();
             ms_cams = new ToolStripMenuItem();
             stream_launch = new ToolStripMenuItem();
             ms_auton = new ToolStripMenuItem();
+            auton_text = new ToolStripMenuItem();
             robot_auton = new ToolStripComboBox();
             ms_help = new ToolStripMenuItem();
+            help_more = new ToolStripMenuItem();
             help_about = new ToolStripMenuItem();
+            tss2 = new ToolStripSeparator();
             ss.SuspendLayout();
             p_main.SuspendLayout();
             tlp_main.SuspendLayout();
@@ -89,8 +91,8 @@
             ss_label.Font = new Font("Segoe UI", 10F);
             ss_label.Margin = new Padding(8, 5, 50, 8);
             ss_label.Name = "ss_label";
-            ss_label.Size = new Size(180, 20);
-            ss_label.Text = "S.H.A.R.K. Controller vDEV";
+            ss_label.Size = new Size(152, 20);
+            ss_label.Text = "SPRK Controller vDEV";
             ss_label.Click += help_about_Click;
             // 
             // ss_robot
@@ -107,11 +109,11 @@
             // 
             ss_controller.BackColor = Color.Red;
             ss_controller.Font = new Font("Segoe UI", 10F);
-            ss_controller.Image = (Image)resources.GetObject("ss_controller.Image");
+            ss_controller.Image = Properties.Resources.ICO_Joystick;
             ss_controller.Margin = new Padding(8, 5, 50, 8);
             ss_controller.Name = "ss_controller";
-            ss_controller.Size = new Size(190, 20);
-            ss_controller.Text = "Controller Disconnected.";
+            ss_controller.Size = new Size(174, 20);
+            ss_controller.Text = "Joystick Disconnected.";
             ss_controller.Click += ss_controller_Click;
             // 
             // p_main
@@ -149,10 +151,10 @@
             tlp_main.Controls.Add(b_startCode, 4, 6);
             tlp_main.Controls.Add(b_teleop, 1, 5);
             tlp_main.Controls.Add(b_auton, 0, 5);
-            tlp_main.Controls.Add(l_status, 0, 3);
             tlp_main.Controls.Add(nud_port, 5, 1);
             tlp_main.Controls.Add(cb_hostname, 4, 1);
             tlp_main.Controls.Add(console, 0, 7);
+            tlp_main.Controls.Add(l_status, 0, 3);
             tlp_main.Dock = DockStyle.Fill;
             tlp_main.Location = new Point(10, 5);
             tlp_main.Name = "tlp_main";
@@ -186,9 +188,9 @@
             l_hostname.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
             l_hostname.Location = new Point(427, 14);
             l_hostname.Name = "l_hostname";
-            l_hostname.Size = new Size(97, 20);
+            l_hostname.Size = new Size(142, 20);
             l_hostname.TabIndex = 5;
-            l_hostname.Text = "Hostname/IP";
+            l_hostname.Text = "Robot Hostname/IP";
             // 
             // l_port
             // 
@@ -358,9 +360,9 @@
             l_status.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
             l_status.Location = new Point(3, 89);
             l_status.Name = "l_status";
-            l_status.Size = new Size(95, 20);
+            l_status.Size = new Size(50, 20);
             l_status.TabIndex = 11;
-            l_status.Text = "Robot Status";
+            l_status.Text = "Status";
             // 
             // nud_port
             // 
@@ -399,7 +401,7 @@
             // ms
             // 
             ms.ImageScalingSize = new Size(18, 18);
-            ms.Items.AddRange(new ToolStripItem[] { ms_prefs, ms_joystick, ms_cams, ms_auton, ms_help });
+            ms.Items.AddRange(new ToolStripItem[] { ms_joystick, ms_cams, ms_auton, ms_prefs, ms_help });
             ms.Location = new Point(0, 0);
             ms.Name = "ms";
             ms.Size = new Size(846, 25);
@@ -412,7 +414,6 @@
             ms_prefs.Name = "ms_prefs";
             ms_prefs.Size = new Size(88, 21);
             ms_prefs.Text = "&Preferences";
-            ms_prefs.Visible = false;
             // 
             // backgroundPrefs
             // 
@@ -424,48 +425,40 @@
             // 
             // ms_joystick
             // 
-            ms_joystick.DropDownItems.AddRange(new ToolStripItem[] { joystick_rescan, tss1, joystick_bypass, joystick_configure });
+            ms_joystick.DropDownItems.AddRange(new ToolStripItem[] { joystick_rescan, tss1, joystick_bypass });
             ms_joystick.Name = "ms_joystick";
-            ms_joystick.Size = new Size(64, 21);
-            ms_joystick.Text = "&Joystick";
+            ms_joystick.Size = new Size(49, 21);
+            ms_joystick.Text = "&Input";
             // 
             // joystick_rescan
             // 
             joystick_rescan.Name = "joystick_rescan";
             joystick_rescan.ShortcutKeys = Keys.F1;
-            joystick_rescan.Size = new Size(214, 24);
-            joystick_rescan.Text = "&Rescan";
+            joystick_rescan.Size = new Size(242, 24);
+            joystick_rescan.Text = "&Rescan Joystick";
             joystick_rescan.Click += ss_controller_Click;
             // 
             // tss1
             // 
             tss1.Name = "tss1";
-            tss1.Size = new Size(211, 6);
+            tss1.Size = new Size(239, 6);
             // 
             // joystick_bypass
             // 
             joystick_bypass.CheckOnClick = true;
             joystick_bypass.Name = "joystick_bypass";
             joystick_bypass.ShortcutKeys = Keys.Control | Keys.B;
-            joystick_bypass.Size = new Size(214, 24);
-            joystick_bypass.Text = "&Bypass Joystick";
+            joystick_bypass.Size = new Size(242, 24);
+            joystick_bypass.Text = "Use &Keyboard Input";
             joystick_bypass.Click += joystick_bypass_Click;
-            // 
-            // joystick_configure
-            // 
-            joystick_configure.Enabled = false;
-            joystick_configure.Name = "joystick_configure";
-            joystick_configure.Size = new Size(214, 24);
-            joystick_configure.Text = "&Configure/Test";
-            joystick_configure.Visible = false;
             // 
             // ms_cams
             // 
             ms_cams.DropDownItems.AddRange(new ToolStripItem[] { stream_launch });
+            ms_cams.Enabled = false;
             ms_cams.Name = "ms_cams";
             ms_cams.Size = new Size(71, 21);
             ms_cams.Text = "C&ameras";
-            ms_cams.Visible = false;
             // 
             // stream_launch
             // 
@@ -476,33 +469,54 @@
             // 
             // ms_auton
             // 
-            ms_auton.DropDownItems.AddRange(new ToolStripItem[] { robot_auton });
+            ms_auton.DropDownItems.AddRange(new ToolStripItem[] { auton_text, robot_auton });
             ms_auton.Enabled = false;
             ms_auton.Name = "ms_auton";
             ms_auton.Size = new Size(132, 21);
             ms_auton.Text = "&Select Autonomous";
             // 
+            // auton_text
+            // 
+            auton_text.Enabled = false;
+            auton_text.Name = "auton_text";
+            auton_text.Size = new Size(303, 24);
+            auton_text.Text = "Click the box below to select an auton";
+            auton_text.TextDirection = ToolStripTextDirection.Horizontal;
+            // 
             // robot_auton
             // 
             robot_auton.DropDownStyle = ComboBoxStyle.DropDownList;
+            robot_auton.DropDownWidth = 121;
             robot_auton.Items.AddRange(new object[] { "Autonomous 1", "Autonomous 2" });
             robot_auton.Name = "robot_auton";
-            robot_auton.Size = new Size(121, 25);
+            robot_auton.Size = new Size(201, 25);
             robot_auton.SelectedIndexChanged += robot_auton_TextUpdate;
             // 
             // ms_help
             // 
-            ms_help.DropDownItems.AddRange(new ToolStripItem[] { help_about });
+            ms_help.DropDownItems.AddRange(new ToolStripItem[] { help_more, tss2, help_about });
             ms_help.Name = "ms_help";
             ms_help.Size = new Size(47, 21);
             ms_help.Text = "&Help";
             // 
+            // help_more
+            // 
+            help_more.Name = "help_more";
+            help_more.Size = new Size(185, 24);
+            help_more.Text = "&More Information";
+            help_more.Click += help_more_Click;
+            // 
             // help_about
             // 
             help_about.Name = "help_about";
-            help_about.Size = new Size(117, 24);
+            help_about.Size = new Size(185, 24);
             help_about.Text = "&About";
             help_about.Click += help_about_Click;
+            // 
+            // tss2
+            // 
+            tss2.Name = "tss2";
+            tss2.Size = new Size(182, 6);
             // 
             // WIN_MAIN
             // 
@@ -542,7 +556,7 @@
         private TableLayoutPanel tlp_main;
         private Button b_connect;
         private ToolStripStatusLabel ss_robot;
-        private ToolStripStatusLabel ss_controller;
+        private ToolStripStatusLabel    ss_controller;
         private Label l_hostname;
         private TextBox robotInfo;
         private Label ls_console;
@@ -559,7 +573,6 @@
         private MenuStrip ms;
         private ToolStripMenuItem ms_auton;
         private ToolStripMenuItem ms_joystick;
-        private ToolStripMenuItem joystick_configure;
         private ToolStripComboBox robot_auton;
         private ToolStripMenuItem joystick_bypass;
         private ToolStripMenuItem joystick_rescan;
@@ -573,5 +586,8 @@
         private ToolStripMenuItem backgroundPrefs;
         private ToolStripMenuItem ms_cams;
         private ToolStripMenuItem stream_launch;
+        private ToolStripMenuItem auton_text;
+        private ToolStripMenuItem help_more;
+        private ToolStripSeparator tss2;
     }
 }

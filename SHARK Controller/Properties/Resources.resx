@@ -125,12 +125,21 @@
     <value>..\Resources\star.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="AppVersion" xml:space="preserve">
-    <value>v1.6.1</value>
+    <value>v1.7</value>
   </data>
   <data name="Background" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\1000_F_252661691_bKML6FavTjna7p9SQ2EPfFVcqh8cqy2H.jpg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="BetaWarning" xml:space="preserve">
     <value>false</value>
+  </data>
+  <data name="ICO_KeyboardKey" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\keyboard_key_a.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ICO_Joystick" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\video-game-emoji-2048x1805-1m67vp7k.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ProjectWebsite" xml:space="preserve">
+    <value>https://quackings.com/posts/sprk-controller/</value>
   </data>
 </root>

@@ -81,7 +81,7 @@ namespace SPRK.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to v1.6.1.
+        ///   Looks up a localized string similar to v1.7.
         /// </summary>
         internal static string AppVersion {
             get {
@@ -105,6 +105,35 @@ namespace SPRK.Properties {
         internal static string BetaWarning {
             get {
                 return ResourceManager.GetString("BetaWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ICO_Joystick {
+            get {
+                object obj = ResourceManager.GetObject("ICO_Joystick", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ICO_KeyboardKey {
+            get {
+                object obj = ResourceManager.GetObject("ICO_KeyboardKey", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://quackings.com/posts/sprk-controller/.
+        /// </summary>
+        internal static string ProjectWebsite {
+            get {
+                return ResourceManager.GetString("ProjectWebsite", resourceCulture);
             }
         }
     }

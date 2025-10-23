@@ -45,18 +45,20 @@ namespace SPRK
             InitializeComponent();
 
             VersionStr = Properties.Resources.AppVersion;
-            ss_label.Text = $"S.P.R.K Controller {VersionStr}";
+            ss_label.Text = $"SPRK Controller {VersionStr}";
             defaultConsoleColor = console.ForeColor;
 
             ss_label.Image = GetImageFromBytes(Properties.Resources.AppPNG);
 
-            AddConsoleText("** Welcome to the S.P.R.K Controller! **", Color.DarkCyan);
-            AddConsoleText($"** Version {VersionStr} **", Color.BlueViolet);
-            AddConsoleText("** Written by Kyle Rush **", Color.BlueViolet);
+            AddConsoleText(">> Welcome to the SPRK Controller!", Color.DarkCyan);
+            AddConsoleText($">> Version {VersionStr}", Color.BlueViolet);
+            AddConsoleText(">> Written by Kyle Rush", Color.BlueViolet);
             if (Properties.Resources.BetaWarning == "true")
             {
-                AddConsoleText("** Warning! This is a BETA version. Use with caution. **", Color.Red);
+                AddConsoleText(">> Warning! This is a BETA version. Use with caution.", Color.Red);
             }
+
+            AddConsoleText("", Color.White);
 
             cb_hostname.Text = MainSettings.Default.Hostname;
             foreach (var item in MainSettings.Default.SavedHosts)
@@ -92,7 +94,7 @@ namespace SPRK
             disconnectControlModifications = new TSMCollection([
                 new ThreadSafeModification<RichTextBox>(console, (c) => {
                     ms_auton.Enabled = false;
-                    ms_cams.Visible = false;
+                    ms_cams.Enabled = false;
                     c.SelectionStart = c.Text.Length;
                     c.ScrollToCaret();
                 }),
@@ -145,12 +147,12 @@ namespace SPRK
             {
                 if (!controller!.IsConnected && !bypassJoystick)
                 {
-                    throw new Exception("No controller detected. Exiting...");
+                    joystick_bypass.Checked = true;
+                    joystick_bypass_Click(null, null);
+                    WriteConsole(">> [SPRK CONTROLLER] Automatically switched using Keyboard input.\n", Color.Orange);
                 }
-                else if (bypassJoystick)
-                {
-                    WriteConsole("[SPRK CONTROLLER] WARNING! Bypassing joystick input.", Color.Orange);
-                }
+
+                WriteConsole($"[SPRK CONTROLLER] The current mode of input is: {(bypassJoystick ? "Keyboard" : "Joystick")}", Color.Aquamarine);
 
                 client.Connect(hostName, port);
                 using NetworkStream stream = client.GetStream();
@@ -230,43 +232,57 @@ namespace SPRK
                         continue;
                     }
 
-
-                    if (bypassJoystick)
-                    {
-                        continue;
-                    }
-
-                    var state = controller.GetState();
-                    var gamepad = state.Gamepad;
-
-                    // Only send joystick data in teleop
                     if (isInTele)
                     {
-                        // Send stick data
-                        int leftX = (int) NormalizeStick(gamepad.LeftThumbX);
-                        int leftY = (int) NormalizeStick(gamepad.LeftThumbY);
-                        int rightX = (int) NormalizeStick(gamepad.RightThumbX);
-                        int rightY = (int) NormalizeStick(gamepad.RightThumbY);
-                        int triggerL = RoundStick(gamepad.LeftTrigger, 75f);
-                        int triggerR = RoundStick(gamepad.RightTrigger, 75f);
-
-                        WriteData(stream, $"te-jstk,{leftX},{leftY},{rightX},{rightY},{triggerL},{triggerR};");
-
-                        Thread.Sleep(25);
-
-                        // Send button data
-                        foreach (var button in Enum.GetValues(typeof(GamepadButtonFlags)).Cast<GamepadButtonFlags>())
+                        if (!bypassJoystick)
                         {
-                            if (gamepad.Buttons.HasFlag(button) && !pressedButtons.Contains(button))
+
+                            var state = controller.GetState();
+                            var gamepad = state.Gamepad;
+
+                            // Only send joystick data in teleop
+
+                            // Send stick data
+                            int leftX = (int)NormalizeStick(gamepad.LeftThumbX);
+                            int leftY = (int)NormalizeStick(gamepad.LeftThumbY);
+                            int rightX = (int)NormalizeStick(gamepad.RightThumbX);
+                            int rightY = (int)NormalizeStick(gamepad.RightThumbY);
+                            int triggerL = RoundStick(gamepad.LeftTrigger, 75f);
+                            int triggerR = RoundStick(gamepad.RightTrigger, 75f);
+
+                            WriteData(stream, $"te-jstk,{leftX},{leftY},{rightX},{rightY},{triggerL},{triggerR};");
+
+                            Thread.Sleep(25);
+
+                            // Send button data
+                            foreach (var button in Enum.GetValues(typeof(GamepadButtonFlags)).Cast<GamepadButtonFlags>())
                             {
-                                pressedButtons.Add(button);
-                                WriteData(stream, $"te-btn,{button};");
+                                if (gamepad.Buttons.HasFlag(button) && !pressedButtons.Contains(button))
+                                {
+                                    pressedButtons.Add(button);
+                                    WriteData(stream, $"te-btn,{button};");
+                                }
+                                else if (!gamepad.Buttons.HasFlag(button) && pressedButtons.Contains(button))
+                                {
+                                    pressedButtons.Remove(button);
+                                    WriteData(stream, $"te-btn,-{button};");
+                                }
                             }
-                            else if (!gamepad.Buttons.HasFlag(button) && pressedButtons.Contains(button))
-                            {
-                                pressedButtons.Remove(button);
-                                WriteData(stream, $"te-btn,-{button};");
-                            }
+                        }
+                        else
+                        {
+                            const int axisFull = 100; // matches NormalizeStick range used elsewhere
+                            int lx = pressedKeys.Contains(Keys.D) ? axisFull : pressedKeys.Contains(Keys.A) ? -axisFull : 0;
+                            int ly = pressedKeys.Contains(Keys.W) ? axisFull : pressedKeys.Contains(Keys.S) ? -axisFull : 0;
+
+                            int rx = pressedKeys.Contains(Keys.Right) ? axisFull : pressedKeys.Contains(Keys.Left) ? -axisFull : 0;
+                            int ry = pressedKeys.Contains(Keys.Up) ? axisFull : pressedKeys.Contains(Keys.Down) ? -axisFull : 0;
+
+                            // Q/E as simple digital triggers (0/1)
+                            int tL = pressedKeys.Contains(Keys.Q) ? 1 : 0;
+                            int tR = pressedKeys.Contains(Keys.E) ? 1 : 0;
+
+                            WriteData(stream, $"te-jstk,{lx},{ly},{rx},{ry},{tL},{tR};");
                         }
                     }
 
@@ -385,7 +401,7 @@ namespace SPRK
                                         {
                                             new ThreadSafeModification<Panel>(p_main, (c) =>
                                             {
-                                                ms_cams.Visible = true;
+                                                ms_cams.Enabled = true;
                                             }).Apply();
                                         }
                                     }
@@ -628,16 +644,17 @@ namespace SPRK
                 }
             }
             controller = new Controller(UserIndex.One);
+            ss_controller.Image = Properties.Resources.ICO_Joystick;
             if (controller.IsConnected)
             {
-                ss_controller.Text = "Controller connected.";
+                ss_controller.Text = "Joystick Connected.";
                 ss_controller.BackColor = Color.Green;
             }
             else
             {
-                ss_controller.Text = "Controller disconnected.";
+                ss_controller.Text = "Joystick Disconnected.";
                 ss_controller.BackColor = Color.Red;
-                AddConsoleText("[SPRK CONTROLLER] WARNING! No controller detected.\r\nPress F1 to rescan.", Color.Orange);
+                AddConsoleText("[SPRK CONTROLLER] WARNING! No joystick detected.\r\nPress F1 to rescan. Alternatively, use keyboard input with Ctrl+B", Color.Orange);
             }
         }
 
@@ -687,10 +704,17 @@ namespace SPRK
                 //e.Handled = true;
             }
 
+            if (bypassJoystick)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+
             if (b_teleop.Enabled && pressedKeys.Contains(Keys.OemPipe) && pressedKeys.Contains(Keys.Oem6) && pressedKeys.Contains(Keys.Oem4))
             {
                 b_teleop.PerformClick();
                 e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
 
@@ -718,15 +742,21 @@ namespace SPRK
             changeAutoRequest = true;
         }
 
-        private void joystick_bypass_Click(object sender, EventArgs e)
+        private void joystick_bypass_Click(object? sender, EventArgs? e)
         {
             bypassJoystick = joystick_bypass.Checked;
 
-            ss_controller.Text = bypassJoystick ? "Controller Bypassed." : "Controller Connected.";
-            ss_controller.BackColor = Color.Gray;
+            ss_controller.BackColor = Color.MediumAquamarine;
 
-            if (!bypassJoystick)
+            if (bypassJoystick)
             {
+                ss_controller.Image = Properties.Resources.ICO_KeyboardKey;
+                ss_controller.Text = "Keyboard Input";
+            }
+            else
+            {
+                ss_controller.Image = Properties.Resources.ICO_Joystick;
+                ss_controller.Text = "Joystick Connected.";
                 ss_controller_Click(null, null);
             }
         }
@@ -753,6 +783,15 @@ namespace SPRK
             }).Show();
         }
 
+        private void help_more_Click(object sender, EventArgs e)
+        {
+            ProcessStartInfo psInfo = new()
+            {
+                FileName = Properties.Resources.ProjectWebsite,
+                UseShellExecute = true,
+            };
+            Process.Start(psInfo);
+        }
     }
 
 }
