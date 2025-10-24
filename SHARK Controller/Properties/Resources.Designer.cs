@@ -81,7 +81,7 @@ namespace SPRK.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to v1.7.
+        ///   Looks up a localized string similar to v1.7.1.
         /// </summary>
         internal static string AppVersion {
             get {

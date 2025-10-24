@@ -1,4 +1,5 @@
 using SharpDX.XInput;
+using System.CodeDom;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
@@ -39,6 +40,22 @@ namespace SPRK
         private readonly TSMCollection disconnectControlModifications = new();
 
         private HashSet<Keys> pressedKeys = [];
+
+        private readonly Dictionary<Keys, string> keyMap = new()
+        {
+            {Keys.I, "DPADUP"},
+            {Keys.K, "DPADDOWN"},
+            {Keys.J, "DPADLEFT"},
+            {Keys.L, "DPADRIGHT"},
+            {Keys.U, "LEFTSHOULDER"},
+            {Keys.O, "RIGHTSHOULDER"},
+            {Keys.Oemcomma, "BACK"},
+            {Keys.OemPeriod, "START"},
+            {Keys.Z, "A"},
+            {Keys.X, "B"},
+            {Keys.C, "X"},
+            {Keys.V, "Y"},
+        };
 
         public WIN_MAIN()
         {
@@ -181,6 +198,7 @@ namespace SPRK
                 }
 
                 HashSet<GamepadButtonFlags> pressedButtons = [];
+                HashSet<Keys> sentKeys = [];
 
                 ss_robot.Text = "Robot connected.";
                 ss_robot.BackColor = Color.Green;
@@ -278,14 +296,31 @@ namespace SPRK
                             int rx = pressedKeys.Contains(Keys.Right) ? axisFull : pressedKeys.Contains(Keys.Left) ? -axisFull : 0;
                             int ry = pressedKeys.Contains(Keys.Up) ? axisFull : pressedKeys.Contains(Keys.Down) ? -axisFull : 0;
 
-                            // Q/E as simple digital triggers (0/1)
                             int tL = pressedKeys.Contains(Keys.Q) ? 1 : 0;
                             int tR = pressedKeys.Contains(Keys.E) ? 1 : 0;
 
                             WriteData(stream, $"te-jstk,{lx},{ly},{rx},{ry},{tL},{tR};");
+
+                            foreach (KeyValuePair<Keys, string> pair in keyMap) {
+                                if (pressedKeys.Contains(pair.Key) && !sentKeys.Contains(pair.Key)) {
+                                    sentKeys.Add(pair.Key);
+                                    WriteData(stream, $"te-btn,{pair.Value};");
+                                }
+                                else if (!pressedKeys.Contains(pair.Key) && sentKeys.Contains(pair.Key)) {
+                                    sentKeys.Remove(pair.Key);
+                                    WriteData(stream, $"te-btn,-{pair.Value};");
+                                }
+                            }
+
+                        }
+                    } else
+                    {
+                        if (sentKeys.Count > 0)
+                        {
+                            sentKeys.Clear();
                         }
                     }
-
+                    
                     Thread.Sleep(25);
                 }
             }
@@ -339,6 +374,10 @@ namespace SPRK
                         }
                         else if (stateMessage == "TELEOP")
                         {
+                            if (pressedKeys.Count > 0)
+                            {
+                                pressedKeys.Clear();
+                            }
                             new ThreadSafeModification<TextBox>(robotState, (c) =>
                             {
                                 c.Text = robotSimulated ? "SIM - TELEOP" : "TELEOP";
@@ -672,7 +711,6 @@ namespace SPRK
         private void b_teleop_Click(object sender, EventArgs e)
         {
             teleopRequest = true;
-
         }
 
         private void b_auton_Click(object sender, EventArgs e)
@@ -704,7 +742,7 @@ namespace SPRK
                 //e.Handled = true;
             }
 
-            if (bypassJoystick)
+            if (bypassJoystick && isInTele)
             {
                 e.Handled = true;
                 e.SuppressKeyPress = true;

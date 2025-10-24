@@ -125,7 +125,7 @@
     <value>..\Resources\star.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="AppVersion" xml:space="preserve">
-    <value>v1.7</value>
+    <value>v1.7.1</value>
   </data>
   <data name="Background" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\1000_F_252661691_bKML6FavTjna7p9SQ2EPfFVcqh8cqy2H.jpg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
