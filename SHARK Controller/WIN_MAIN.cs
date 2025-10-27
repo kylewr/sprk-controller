@@ -400,7 +400,7 @@ namespace SPRK
                         }
                         continue;
                     }
-                    else if (message.StartsWith("[ROBOTINFO] "))
+                    else if (message.StartsWith("[ROBOTINFO]"))
                     {
                         try
                         {
