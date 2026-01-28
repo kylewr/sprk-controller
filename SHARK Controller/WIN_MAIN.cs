@@ -665,7 +665,7 @@ namespace SPRK
 
         private void help_about_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SPRK Controller\nIcon from Freepik", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}\nIcon(s) from Freepik", "About SPRK Controller", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ss_controller_Click(object? sender, EventArgs? e)
