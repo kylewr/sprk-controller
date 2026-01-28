@@ -5,6 +5,12 @@ VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK Controller", "SHARK Controller\SPRK Controller.csproj", "{24F15E02-3704-4043-9535-F4BAD460FEA1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK.Core", "SPRK.Core\SPRK.Core.csproj", "{607599B3-CB00-CB8D-3E51-7E4F13BAB79F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK.Avalonia", "SPRK.Avalonia\SPRK.Avalonia\SPRK.Avalonia.csproj", "{A427C64F-CD95-42B0-AE02-4201711C9F9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK.Avalonia.Desktop", "SPRK.Avalonia\SPRK.Avalonia.Desktop\SPRK.Avalonia.Desktop.csproj", "{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{24F15E02-3704-4043-9535-F4BAD460FEA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24F15E02-3704-4043-9535-F4BAD460FEA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24F15E02-3704-4043-9535-F4BAD460FEA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{607599B3-CB00-CB8D-3E51-7E4F13BAB79F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{607599B3-CB00-CB8D-3E51-7E4F13BAB79F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{607599B3-CB00-CB8D-3E51-7E4F13BAB79F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{607599B3-CB00-CB8D-3E51-7E4F13BAB79F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A427C64F-CD95-42B0-AE02-4201711C9F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A427C64F-CD95-42B0-AE02-4201711C9F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A427C64F-CD95-42B0-AE02-4201711C9F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A427C64F-CD95-42B0-AE02-4201711C9F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

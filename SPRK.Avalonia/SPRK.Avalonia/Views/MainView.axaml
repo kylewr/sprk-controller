@@ -1,0 +1,251 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SPRK.Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="967" d:DesignHeight="568"
+             x:Class="SPRK.Avalonia.Views.MainView"
+             x:DataType="vm:MainViewModel">
+  <Design.DataContext>
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <!-- Style for read-only TextBoxes to prevent hover color changes -->
+    <Style Selector="TextBox.readonly">
+      <Setter Property="IsReadOnly" Value="True"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+      <Setter Property="Cursor" Value="Arrow"/>
+    </Style>
+    <Style Selector="TextBox.readonly:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="{Binding $parent[TextBox].Background}"/>
+    </Style>
+    <Style Selector="TextBox.readonly:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="{Binding $parent[TextBox].Background}"/>
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel>
+    <!-- Menu Bar -->
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_Input">
+        <MenuItem Header="_Rescan Joystick" InputGesture="F1"/>
+        <Separator/>
+        <MenuItem Header="Use _Keyboard Input" InputGesture="Ctrl+B" 
+                  IsChecked="{Binding UseKeyboard}" />
+      </MenuItem>
+      <MenuItem Header="C_ameras" IsEnabled="{Binding CameraEnabled}">
+        <MenuItem Header="_Launch Stream"/>
+      </MenuItem>
+      <MenuItem Header="_Select Autonomous" IsEnabled="{Binding IsConnected}">
+        <MenuItem Header="Click the box below to select an auton" IsEnabled="False"/>
+        <ComboBox ItemsSource="{Binding AutonList}" 
+                  SelectedItem="{Binding SelectedAuton}"
+                  Width="200"/>
+      </MenuItem>
+      <MenuItem Header="_Preferences">
+        <MenuItem Header="_Use Background Image"/>
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="_More Information" Command="{Binding OpenWebsiteCommand}"/>
+        <Separator/>
+        <MenuItem Header="_About" Command="{Binding ShowAboutCommand}"/>
+      </MenuItem>
+    </Menu>
+
+    <!-- Status Bar -->
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" 
+                Background="#F0F0F0" Height="36" Spacing="50">
+      <TextBlock Text="SPRK Controller v2.0" 
+                 VerticalAlignment="Center" Margin="10,0,0,0"
+                 FontSize="14"/>
+      <Border Background="{Binding RobotStatusColor}" Padding="8,4" CornerRadius="2"
+              VerticalAlignment="Center">
+        <TextBlock Text="{Binding RobotStatusText}" 
+                   FontSize="14" Foreground="White"/>
+      </Border>
+      <Border Background="{Binding ControllerStatusColor}" Padding="8,4" CornerRadius="2"
+              VerticalAlignment="Center">
+        <TextBlock Text="{Binding ControllerStatusText}" 
+                   FontSize="14" Foreground="White"/>
+      </Border>
+    </StackPanel>
+
+    <!-- Main Content Panel -->
+    <Panel Margin="11,6">
+      <!-- TableLayoutPanel equivalent using Grid -->
+      <!-- Rows: 40, 45, 8(spacer), 35, 54, 82, 42, * -->
+      <!-- Cols: 159, 98, 197, 31, *, 153 -->
+      <Grid RowDefinitions="85,8,35,54,82,42,*" 
+            ColumnDefinitions="159,98,197,31,*,153"
+            Margin="0,8,0,0">
+        
+        <!-- Row 0, Col 0-2: Connect Button (full height, spans 3 columns) -->
+        <Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                Content="_Connect to Robot"
+                Command="{Binding ConnectCommand}"
+                IsEnabled="{Binding CanConnect}"
+                FontSize="20"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"/>
+        
+        <!-- Row 0, Col 4: Hostname Label -->
+        <TextBlock Grid.Row="0" Grid.Column="4" 
+                   Text="Robot Hostname/IP" 
+                   FontWeight="SemiBold" FontSize="14"
+                   VerticalAlignment="Top"
+                   Margin="0,4,0,0"/>
+        
+        <!-- Row 0, Col 5: Port Label -->
+        <TextBlock Grid.Row="0" Grid.Column="5" 
+                   Text="Port" 
+                   FontWeight="SemiBold" FontSize="14"
+                   VerticalAlignment="Top"
+                   Margin="8,4,0,0"/>
+        
+        <!-- Row 0, Col 4: Hostname ComboBox -->
+        <ComboBox Grid.Row="0" Grid.Column="4" 
+                  IsEditable="True"
+                  Text="{Binding Hostname}"
+                  IsEnabled="{Binding !IsConnected}"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Stretch"
+                  Margin="0,28,0,0"/>
+        
+        <!-- Row 0, Col 5: Port NumericUpDown -->
+        <NumericUpDown Grid.Row="0" Grid.Column="5"
+                       Value="{Binding Port}"
+                       Minimum="1" Maximum="65535"
+                       IsEnabled="{Binding !IsConnected}"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Stretch"
+                       Margin="8,28,0,0"/>
+        
+        <!-- Row 1 is spacer (8px) -->
+        
+        <!-- Row 2, Col 0: Status Label -->
+        <TextBlock Grid.Row="2" Grid.Column="0" 
+                   Text="Status" 
+                   FontWeight="SemiBold" FontSize="14"
+                   VerticalAlignment="Bottom"/>
+        
+        <!-- Row 2, Col 4: Robot Information Label -->
+        <TextBlock Grid.Row="2" Grid.Column="4" 
+                   Text="Robot Information" 
+                   FontWeight="SemiBold" FontSize="14"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,0"/>
+        
+        <!-- Row 2, Col 5: Kill Button -->
+        <Button Grid.Row="2" Grid.Column="5"
+                Content="_Kill Robot Code"
+                Command="{Binding KillRobotCommand}"
+                IsEnabled="{Binding KillEnabled}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"/>
+        
+        <!-- Row 3, Col 0-2: Robot State TextBox -->
+        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                 Classes="readonly"
+                 Text="{Binding RobotStateText}"
+                 Background="{Binding RobotStateColor}"
+                 FontSize="20" FontWeight="Bold"
+                 TextAlignment="Center"
+                 VerticalContentAlignment="Center"
+                 BorderThickness="1"
+                 Margin="0,4"/>
+        
+        <!-- Row 3-4, Col 4-5: Robot Info TextBox -->
+        <TextBox Grid.Row="3" Grid.Column="4" Grid.ColumnSpan="2" Grid.RowSpan="2"
+                 Classes="readonly"
+                 Text="{Binding RobotInfoText}"
+                 Background="#8DB4D8"
+                 FontSize="14"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 BorderThickness="1"
+                 Margin="0,6"/>
+        
+        <!-- Row 4, Col 0: Auto Button -->
+        <Button Grid.Row="4" Grid.Column="0"
+                Content="Auto"
+                Command="{Binding SendAutonCommand}"
+                IsVisible="{Binding AutonVisible}"
+                IsEnabled="{Binding AutonEnabled}"
+                FontSize="20"
+                HorizontalAlignment="Right"
+                Width="97" 
+                Margin="0,12"/>
+        
+        <!-- Row 4, Col 1: Teleop Button -->
+        <Button Grid.Row="4" Grid.Column="1"
+                Content="Teleop"
+                Command="{Binding SendTeleopCommand}"
+                IsVisible="{Binding TeleopVisible}"
+                IsEnabled="{Binding TeleopEnabled}"
+                FontSize="20"
+                HorizontalAlignment="Left"
+                Width="97" 
+                Margin="0,12"/>
+        
+        <!-- Row 4, Col 2: Disable Button -->
+        <Button Grid.Row="4" Grid.Column="2"
+                Content="Disable"
+                Command="{Binding SendDisableCommand}"
+                IsVisible="{Binding DisableVisible}"
+                IsEnabled="{Binding DisableEnabled}"
+                Background="Tomato"
+                FontSize="20"
+                HorizontalAlignment="Center"
+                Width="133" 
+                Margin="0,12"/>
+        
+        <!-- Row 5, Col 0: Console Label -->
+        <TextBlock Grid.Row="5" Grid.Column="0"
+                   Text="Console"
+                   FontWeight="SemiBold" FontSize="14"
+                   VerticalAlignment="Bottom"/>
+        
+        <!-- Row 5, Col 4: Start Robot Code Button (hidden by default) -->
+        <Button Grid.Row="5" Grid.Column="4"
+                Content="Start Robot Code (SSH)"
+                IsVisible="False"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"/>
+        
+        <!-- Row 5, Col 5: Clear Console Button -->
+        <Button Grid.Row="5" Grid.Column="5"
+                Content="Clear Console"
+                Command="{Binding ClearConsoleCommand}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"/>
+        
+        <!-- Row 6, Col 0-5: Console (spans all columns) -->
+        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6"
+                Background="#1C1C1C"
+                BorderBrush="Gray"
+                BorderThickness="1"
+                Margin="0,4">
+          <ScrollViewer x:Name="ConsoleScroller"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding ConsoleMessages}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Text}"
+                             Foreground="{Binding Color}"
+                             FontFamily="Cascadia Code, Consolas, monospace"
+                             FontSize="14"
+                             TextWrapping="Wrap"/>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+    </Panel>
+  </DockPanel>
+</UserControl>
