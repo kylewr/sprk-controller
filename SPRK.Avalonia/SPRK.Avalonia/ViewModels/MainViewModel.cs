@@ -9,6 +9,7 @@ using Avalonia.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace SPRK.Avalonia.ViewModels;
 
@@ -17,11 +18,33 @@ public partial class MainViewModel : ViewModelBase
     private readonly RobotConnection connection;
     private const string VersionStr = "2.0";
 
-    // Track pressed keys for three-finger combo
+    // Track pressed keys for input handling - use lock for thread safety
     private readonly HashSet<Key> pressedKeys = [];
+    private readonly HashSet<Key> sentKeys = [];
+    private readonly object keyLock = new();
+
+    // Key to button mapping (matches WIN_MAIN exactly)
+    private readonly Dictionary<Key, string> keyMap = new()
+    {
+        { Key.I, "DPADUP" },
+        { Key.K, "DPADDOWN" },
+        { Key.J, "DPADLEFT" },
+        { Key.L, "DPADRIGHT" },
+        { Key.U, "LEFTSHOULDER" },
+        { Key.O, "RIGHTSHOULDER" },
+        { Key.OemComma, "BACK" },
+        { Key.OemPeriod, "START" },
+        { Key.Z, "A" },
+        { Key.X, "B" },
+        { Key.C, "X" },
+        { Key.V, "Y" },
+    };
+
+    private Thread? inputThread;
+    private CancellationTokenSource? inputCts;
 
     [ObservableProperty]
-    private string _hostname = "192.168.1.111";
+    private string _hostname = "127.0.0.1";
 
     [ObservableProperty]
     private int _port = 8007;
@@ -116,13 +139,28 @@ public partial class MainViewModel : ViewModelBase
 
     public void HandleKeyDown(Key key)
     {
-        pressedKeys.Add(key);
+        lock (keyLock)
+        {
+            pressedKeys.Add(key);
+        }
 
-        // Three-finger combo: [ ] \ to enable teleop
-        if (TeleopEnabled && 
-            pressedKeys.Contains(Key.OemOpenBrackets) && 
-            pressedKeys.Contains(Key.OemCloseBrackets) && 
-            pressedKeys.Contains(Key.OemBackslash))
+        // Enter key sends disable signal (matches WIN_MAIN)
+        if (key == Key.Enter && IsConnected)
+        {
+            SendDisableCommand.Execute(null);
+        }
+
+        // Three-finger combo: [ ] \ to enable teleop when disabled
+        // Avalonia uses OemPipe for \, OemCloseBrackets for ], OemOpenBrackets for [
+        bool hasCombo;
+        lock (keyLock)
+        {
+            hasCombo = pressedKeys.Contains(Key.OemPipe) &&
+                       pressedKeys.Contains(Key.OemCloseBrackets) &&
+                       pressedKeys.Contains(Key.OemOpenBrackets);
+        }
+
+        if (TeleopEnabled && hasCombo)
         {
             SendTeleopCommand.Execute(null);
         }
@@ -130,7 +168,10 @@ public partial class MainViewModel : ViewModelBase
 
     public void HandleKeyUp(Key key)
     {
-        pressedKeys.Remove(key);
+        lock (keyLock)
+        {
+            pressedKeys.Remove(key);
+        }
     }
 
     [RelayCommand]
@@ -138,13 +179,19 @@ public partial class MainViewModel : ViewModelBase
     {
         if (!IsConnected)
         {
+            // Clear console and robot info on connect attempt
+            ClearConsole();
+            RobotInfoText = "";
+
             CanConnect = false;
             ConnectButtonText = "Connecting...";
             RobotStateText = "Connecting";
             RobotStateColor = Brushes.SandyBrown;
 
+            AddConsoleText($"[SPRK CONTROLLER] The current mode of input is: Keyboard", ConsoleColor.Cyan);
+
             bool success = await connection.Connect(Hostname, Port, VersionStr);
-            
+
             if (!success)
             {
                 ConnectButtonText = "Connect to Robot";
@@ -157,11 +204,91 @@ public partial class MainViewModel : ViewModelBase
                 IsConnected = true;
                 ConnectButtonText = "Disconnect";
                 CanConnect = true;
+
+                // Start input loop thread
+                StartInputLoop();
             }
         }
         else
         {
+            StopInputLoop();
             connection.Disconnect();
+        }
+    }
+
+    private void StartInputLoop()
+    {
+        inputCts = new CancellationTokenSource();
+        inputThread = new Thread(() => RunInputLoop(inputCts.Token))
+        {
+            IsBackground = true
+        };
+        inputThread.Start();
+    }
+
+    private void StopInputLoop()
+    {
+        inputCts?.Cancel();
+        inputThread?.Join(1000);
+        inputCts = null;
+        inputThread = null;
+    }
+
+    private void RunInputLoop(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested && connection.IsConnected)
+        {
+            if (isInTele && UseKeyboard)
+            {
+                // Send joystick data from keyboard (matches WIN_MAIN exactly)
+                const int axisFull = 100;
+
+                int lx, ly, rx, ry, tL, tR;
+                lock (keyLock)
+                {
+                    lx = pressedKeys.Contains(Key.D) ? axisFull : pressedKeys.Contains(Key.A) ? -axisFull : 0;
+                    ly = pressedKeys.Contains(Key.W) ? axisFull : pressedKeys.Contains(Key.S) ? -axisFull : 0;
+
+                    rx = pressedKeys.Contains(Key.Right) ? axisFull : pressedKeys.Contains(Key.Left) ? -axisFull : 0;
+                    ry = pressedKeys.Contains(Key.Up) ? axisFull : pressedKeys.Contains(Key.Down) ? -axisFull : 0;
+
+                    tL = pressedKeys.Contains(Key.Q) ? 1 : 0;
+                    tR = pressedKeys.Contains(Key.E) ? 1 : 0;
+                }
+
+                connection.SendCommand($"te-jstk,{lx},{ly},{rx},{ry},{tL},{tR};").Wait();
+
+                // Send button press/release events (matches WIN_MAIN exactly)
+                lock (keyLock)
+                {
+                    foreach (var pair in keyMap)
+                    {
+                        if (pressedKeys.Contains(pair.Key) && !sentKeys.Contains(pair.Key))
+                        {
+                            sentKeys.Add(pair.Key);
+                            connection.SendCommand($"te-btn,{pair.Value};").Wait();
+                        }
+                        else if (!pressedKeys.Contains(pair.Key) && sentKeys.Contains(pair.Key))
+                        {
+                            sentKeys.Remove(pair.Key);
+                            connection.SendCommand($"te-btn,-{pair.Value};").Wait();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Clear sent keys when not in teleop (matches WIN_MAIN)
+                lock (keyLock)
+                {
+                    if (sentKeys.Count > 0)
+                    {
+                        sentKeys.Clear();
+                    }
+                }
+            }
+
+            Thread.Sleep(25);
         }
     }
 
@@ -189,6 +316,7 @@ public partial class MainViewModel : ViewModelBase
         AddConsoleText("Killing Robot.", ConsoleColor.Red);
         await connection.SendCommand("exit");
         await Task.Delay(100);
+        StopInputLoop();
         connection.Disconnect();
     }
 
@@ -255,6 +383,14 @@ public partial class MainViewModel : ViewModelBase
         }
         else if (state == "TELEOP")
         {
+            // Clear pressed keys when entering teleop (matches WIN_MAIN)
+            lock (keyLock)
+            {
+                if (pressedKeys.Count > 0)
+                {
+                    pressedKeys.Clear();
+                }
+            }
             RobotStateText = RobotSimulated ? "SIM - TELEOP" : "TELEOP";
             RobotStateColor = Brushes.Green;
             isInTele = true;
@@ -271,6 +407,8 @@ public partial class MainViewModel : ViewModelBase
 
     private void HandleRobotInfo(string info, List<string> autons, List<string> flags)
     {
+        // Clear previous robot info before loading new
+        RobotInfoText = "";
         RobotInfoText += info + "\r\n";
 
         AutonList.Clear();
@@ -295,6 +433,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void HandleDisconnected()
     {
+        StopInputLoop();
         RobotStateText = "Disconnected";
         RobotStateColor = Brushes.LightGray;
         IsConnected = false;
