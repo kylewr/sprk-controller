@@ -9,6 +9,11 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <AvaloniaResource Remove="Assets\1000_F_252661691_bKML6FavTjna7p9SQ2EPfFVcqh8cqy2H.jpg" />
+    
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" />

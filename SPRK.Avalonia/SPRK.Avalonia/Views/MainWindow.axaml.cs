@@ -21,6 +21,12 @@ namespace SPRK.Avalonia.Views
             if (DataContext is MainViewModel vm)
             {
                 vm.HandleKeyDown(e.Key);
+
+                // Prevent Enter from activating focused buttons (matches WIN_MAIN behavior)
+                if (e.Key == Key.Enter && vm.IsConnected)
+                {
+                    e.Handled = true;
+                }
             }
         }
 

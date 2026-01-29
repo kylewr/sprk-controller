@@ -9,6 +9,7 @@
 
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\SPRK.Avalonia\Assets\star.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

@@ -44,9 +44,9 @@
                   SelectedItem="{Binding SelectedAuton}"
                   Width="200"/>
       </MenuItem>
-      <MenuItem Header="_Preferences">
+      <!--<MenuItem Header="_Preferences">
         <MenuItem Header="_Use Background Image"/>
-      </MenuItem>
+      </MenuItem>-->
       <MenuItem Header="_Help">
         <MenuItem Header="_More Information" Command="{Binding OpenWebsiteCommand}"/>
         <Separator/>
@@ -57,18 +57,28 @@
     <!-- Status Bar -->
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" 
                 Background="#F0F0F0" Height="36" Spacing="50">
-      <TextBlock Text="SPRK Controller v2.0" 
-                 VerticalAlignment="Center" Margin="10,0,0,0"
-                 FontSize="14"/>
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+        <Image Source="avares://SPRK.Avalonia/Assets/star.png" 
+               Width="20" Height="20" Margin="0,0,8,0"/>
+        <TextBlock Text="{Binding AppTitle}" 
+                   VerticalAlignment="Center"
+                   FontSize="14"/>
+      </StackPanel>
       <Border Background="{Binding RobotStatusColor}" Padding="8,4" CornerRadius="2"
               VerticalAlignment="Center">
-        <TextBlock Text="{Binding RobotStatusText}" 
-                   FontSize="14" Foreground="White"/>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Image Source="{Binding RobotStatusIcon}" Width="16" Height="16"/>
+          <TextBlock Text="{Binding RobotStatusText}" 
+                     FontSize="14" Foreground="White"/>
+        </StackPanel>
       </Border>
       <Border Background="{Binding ControllerStatusColor}" Padding="8,4" CornerRadius="2"
               VerticalAlignment="Center">
-        <TextBlock Text="{Binding ControllerStatusText}" 
-                   FontSize="14" Foreground="White"/>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Image Source="{Binding ControllerIcon}" Width="16" Height="16"/>
+          <TextBlock Text="{Binding ControllerStatusText}" 
+                     FontSize="14" Foreground="White"/>
+        </StackPanel>
       </Border>
     </StackPanel>
 

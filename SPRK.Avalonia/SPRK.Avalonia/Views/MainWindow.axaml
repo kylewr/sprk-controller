@@ -5,6 +5,7 @@
         xmlns:views="using:SPRK.Avalonia.Views"
         mc:Ignorable="d" d:DesignWidth="967" d:DesignHeight="568"
         x:Class="SPRK.Avalonia.Views.MainWindow"
+        Icon="avares://SPRK.Avalonia/Assets/star.ico"
         Title="S.P.R.K. Controller"
         MinWidth="900" MinHeight="550"
         Width="967" Height="568">

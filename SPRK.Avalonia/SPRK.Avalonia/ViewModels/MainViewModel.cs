@@ -10,13 +10,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using SPRK.Avalonia.Services;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
+using Avalonia.Platform;
 
 namespace SPRK.Avalonia.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
     private readonly RobotConnection connection;
-    private const string VersionStr = "2.0";
 
     // Track pressed keys for input handling - use lock for thread safety
     private readonly HashSet<Key> pressedKeys = [];
@@ -44,10 +47,10 @@ public partial class MainViewModel : ViewModelBase
     private CancellationTokenSource? inputCts;
 
     [ObservableProperty]
-    private string _hostname = "127.0.0.1";
+    private string _hostname = SettingsService.Default.Hostname;
 
     [ObservableProperty]
-    private int _port = 8007;
+    private int _port = SettingsService.Default.Port;
 
     [ObservableProperty]
     private string _robotInfoText = "";
@@ -115,7 +118,17 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string _consoleText = "";
 
+    [ObservableProperty]
+    private Bitmap? _robotStatusIcon;
+
+    [ObservableProperty]
+    private Bitmap? _controllerIcon;
+
+    // Expose app info for UI binding
+    public string AppTitle => $"{AppResources.AppName} {AppResources.AppVersion}";
+
     public ObservableCollection<string> AutonList { get; } = new();
+    public ObservableCollection<string> SavedHostsList { get; } = new(SettingsService.Default.SavedHosts);
     public ObservableCollection<ConsoleMessage> ConsoleMessages { get; } = new();
 
     private bool isInTele = false;
@@ -133,8 +146,10 @@ public partial class MainViewModel : ViewModelBase
 
         // Initial console messages
         AddConsoleText(">> Welcome to the SPRK Controller!", ConsoleColor.Cyan);
-        AddConsoleText($">> Version {VersionStr}", ConsoleColor.Magenta);
-        AddConsoleText(">> Written by Kyle Rush", ConsoleColor.Magenta);
+        AddConsoleText($">> Version {AppResources.AppVersion}", ConsoleColor.Magenta);
+        AddConsoleText($">> Written by {AppResources.Author}", ConsoleColor.Magenta);
+
+        ControllerIcon = new Bitmap(AssetLoader.Open(new Uri("avares://SPRK.Avalonia/Assets/keyboard_key_a.png")));
     }
 
     public void HandleKeyDown(Key key)
@@ -205,6 +220,9 @@ public partial class MainViewModel : ViewModelBase
                 ConnectButtonText = "Disconnect";
                 CanConnect = true;
 
+                // Save settings on successful connection
+                SaveSettings();
+
                 // Start input loop thread
                 StartInputLoop();
             }
@@ -214,6 +232,20 @@ public partial class MainViewModel : ViewModelBase
             StopInputLoop();
             connection.Disconnect();
         }
+    }
+
+    private void SaveSettings()
+    {
+        SettingsService.Default.Hostname = Hostname;
+        SettingsService.Default.Port = Port;
+
+        if (!SettingsService.Default.SavedHosts.Contains(Hostname))
+        {
+            SettingsService.Default.SavedHosts.Add(Hostname);
+            SavedHostsList.Add(Hostname);
+        }
+
+        SettingsService.Save();
     }
 
     private void StartInputLoop()
@@ -330,7 +362,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void ShowAbout()
     {
-        AddConsoleText($"Written by Kyle Rush.\nVersion {VersionStr}\nIcon(s) from Freepik", ConsoleColor.Cyan);
+        AddConsoleText($"Written by {AppResources.Author}.\nVersion {AppResources.AppVersion}\nIcon(s) from Freepik", ConsoleColor.Cyan);
     }
 
     [RelayCommand]
@@ -421,6 +453,9 @@ public partial class MainViewModel : ViewModelBase
         CameraEnabled = flags.Contains("camera") && !RobotSimulated;
     }
 
+    private static readonly Bitmap ControllerIconBitmap = 
+        new Bitmap(AssetLoader.Open(new Uri("avares://SPRK.Avalonia/Assets/controller.png")));
+
     private void HandleConnected()
     {
         TeleopVisible = true;
@@ -429,6 +464,7 @@ public partial class MainViewModel : ViewModelBase
         KillEnabled = true;
         RobotStatusText = "Robot Connected.";
         RobotStatusColor = Brushes.Green;
+        RobotStatusIcon = ControllerIconBitmap;
     }
 
     private void HandleDisconnected()
@@ -447,6 +483,7 @@ public partial class MainViewModel : ViewModelBase
         DisableEnabled = false;
         RobotStatusText = "Robot Disconnected.";
         RobotStatusColor = Brushes.Red;
+        RobotStatusIcon = null;  // Hide icon when disconnected
     }
 
     private void UpdateButtonStates(bool enabled)
@@ -485,6 +522,17 @@ public partial class MainViewModel : ViewModelBase
         ConsoleMessages.Add(new ConsoleMessage(message, brush));
         ConsoleText += message + "\n";
     }
+
+    partial void OnUseKeyboardChanged(bool value)
+    {
+        ControllerIcon = new Bitmap(AssetLoader.Open(new Uri(
+            value ? "avares://SPRK.Avalonia/Assets/ICO_KeyboardKey.png" 
+                  : "avares://SPRK.Avalonia/Assets/ICO_Joystick.png")));
+        ControllerStatusText = value ? "Keyboard Input" : "Joystick Connected.";
+    }
+
+    // Add this property to provide the version string for the connection
+    private string VersionStr => AppResources.AppVersion;
 }
 
 // Simple class for console messages with color
