@@ -25,11 +25,12 @@
     <Style Selector="TextBox.readonly:focus /template/ Border#PART_BorderElement">
       <Setter Property="Background" Value="{Binding $parent[TextBox].Background}"/>
     </Style>
-    <!-- Compact tab styling -->
+    <!-- Modern compact tab styling -->
     <Style Selector="TabControl.compact TabItem">
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="Padding" Value="10,5"/>
-      <Setter Property="MinHeight" Value="28"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
   </UserControl.Styles>
 
@@ -154,24 +155,24 @@
               Margin="16,0,0,0">
           
           <!-- Tabbed Control for Auton and Robot Options -->
-          <TabControl Grid.Column="0" Classes="compact" Margin="0,0,16,0" Padding="0">
+          <TabControl Grid.Column="0" Classes="compact" Margin="0,0,16,0">
             <!-- Auton Tab -->
             <TabItem Header="Auton">
-              <StackPanel Margin="0,4,0,0">
+              <StackPanel Margin="0,8,0,0">
                 <TextBlock Text="Select Autonomous" 
                            FontWeight="SemiBold" FontSize="12"
-                           Margin="0,0,0,2"/>
+                           Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding AutonList}"
                           SelectedItem="{Binding SelectedAuton}"
                           PlaceholderText="Select..."
                           HorizontalAlignment="Stretch"
-                          IsEnabled="{Binding AutonEnabled}"/>
+                          IsEnabled="{Binding !DisableEnabled}"/>
               </StackPanel>
             </TabItem>
             
             <!-- Key View Tab -->
             <TabItem Header="Key View">
-              <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0" VerticalAlignment="Top">
+              <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,8,0,0" VerticalAlignment="Top">
                 <!-- Left Stick (WASD) -->
                 <StackPanel HorizontalAlignment="Center">
                   <TextBlock Text="Left Stick" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,2"/>
@@ -242,7 +243,7 @@
             
             <!-- Robot Options Tab -->
             <TabItem Header="Options">
-              <StackPanel Margin="0,4,0,0" Spacing="8">
+              <StackPanel Margin="0,8,0,0" Spacing="8">
                 <Button Content="_Kill Robot Code"
                         Command="{Binding KillRobotCommand}"
                         IsEnabled="{Binding KillEnabled}"
