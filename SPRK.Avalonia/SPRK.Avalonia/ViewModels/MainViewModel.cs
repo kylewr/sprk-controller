@@ -393,15 +393,18 @@ public partial class MainViewModel : ViewModelBase
         catch { }
     }
 
-    [RelayCommand]
-    private async Task SelectAuton(string autonName)
+    partial void OnSelectedAutonChanged(string? value)
     {
-        if (!string.IsNullOrEmpty(autonName) && IsConnected)
+        if (!string.IsNullOrEmpty(value) && IsConnected)
         {
-            SelectedAuton = autonName;
-            await connection.SendCommand($"se-auto,{autonName}");
-            AddConsoleText($"[AUTON] Selected: {autonName}", ConsoleColor.Green);
+            _ = SendAutonSelectionAsync(value);
         }
+    }
+
+    private async Task SendAutonSelectionAsync(string autonName)
+    {
+        await connection.SendCommand($"se-auto,{autonName}");
+        AddConsoleText($"[AUTON] Selected: {autonName}", ConsoleColor.Green);
     }
 
     private void HandleStateChange(string state)
