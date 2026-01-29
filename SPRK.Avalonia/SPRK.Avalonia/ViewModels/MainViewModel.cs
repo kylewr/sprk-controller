@@ -217,7 +217,7 @@ public partial class MainViewModel : ViewModelBase
             else
             {
                 IsConnected = true;
-                ConnectButtonText = "Disconnect";
+                ConnectButtonText = "_Disconnect";
                 CanConnect = true;
 
                 // Save settings on successful connection
@@ -372,12 +372,6 @@ public partial class MainViewModel : ViewModelBase
         AddConsoleText("[SPRK CONTROLLER] Joystick rescan not yet implemented on Linux.", ConsoleColor.Yellow);
     }
 
-    [RelayCommand]
-    private void LaunchCamera()
-    {
-        // TODO: Implement camera launch
-        AddConsoleText("[CAMERA] Camera stream not yet implemented.", ConsoleColor.Yellow);
-    }
 
     [RelayCommand]
     private void OpenWebsite()
@@ -476,7 +470,7 @@ public partial class MainViewModel : ViewModelBase
         RobotStateText = "Disconnected";
         RobotStateColor = Brushes.LightGray;
         IsConnected = false;
-        ConnectButtonText = "Connect to Robot";
+        ConnectButtonText = "_Connect to Robot";
         TeleopVisible = false;
         AutonVisible = false;
         DisableVisible = false;
@@ -536,6 +530,32 @@ public partial class MainViewModel : ViewModelBase
 
     // Add this property to provide the version string for the connection
     private string VersionStr => AppResources.AppVersion;
+
+    // Add this observable property with the others
+    [ObservableProperty]
+    private bool _showTips = SettingsService.Default.ShowTips;
+
+    // Add this computed property (not an ObservableProperty - just a regular property)
+    public bool ShowTipsPanel => ShowTips && !IsConnected;
+
+    // Add these partial methods to notify when dependencies change
+    partial void OnShowTipsChanged(bool value)
+    {
+        SettingsService.Default.ShowTips = value;
+        SettingsService.Save();
+        OnPropertyChanged(nameof(ShowTipsPanel));
+    }
+
+    partial void OnIsConnectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowTipsPanel));
+    }
+
+    [RelayCommand]
+    private void ToggleShowTips()
+    {
+        ShowTips = !ShowTips;
+    }
 }
 
 // Simple class for console messages with color

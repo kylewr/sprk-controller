@@ -35,12 +35,16 @@
         <MenuItem Header="Use _Keyboard Input" InputGesture="Ctrl+B" 
                   IsChecked="{Binding UseKeyboard}" />
       </MenuItem>
-      <MenuItem Header="C_ameras" IsEnabled="{Binding CameraEnabled}">
-        <MenuItem Header="_Launch Stream"/>
+      <MenuItem Header="_Preferences">
+        <!--<MenuItem Header="_Use Background Image"/>-->
+        <MenuItem Header="Show _Tips" 
+                  Command="{Binding ToggleShowTipsCommand}">
+          <MenuItem.Icon>
+            <CheckBox IsChecked="{Binding ShowTips}" 
+                      IsHitTestVisible="False"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
-      <!--<MenuItem Header="_Preferences">
-        <MenuItem Header="_Use Background Image"/>
-      </MenuItem>-->
       <MenuItem Header="_Help">
         <MenuItem Header="_More Information" Command="{Binding OpenWebsiteCommand}"/>
         <Separator/>
@@ -78,13 +82,13 @@
 
     <!-- Main Content Panel -->
     <Panel Margin="11,6">
-      <Grid RowDefinitions="85,8,35,54,82,42,*" 
+      <Grid RowDefinitions="85,8,24,54,82,42,*" 
             ColumnDefinitions="159,98,197,*"
             Margin="0,8,0,0">
         
         <!-- Row 0, Col 0-2: Connect Button -->
         <Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-                Content="_Connect to Robot"
+                Content="{Binding ConnectButtonText}"
                 Command="{Binding ConnectCommand}"
                 IsEnabled="{Binding CanConnect}"
                 FontSize="20"
@@ -95,7 +99,7 @@
         
         <!-- Row 0, Col 3: Connection Settings -->
         <Grid Grid.Row="0" Grid.Column="3" 
-              ColumnDefinitions="*,120"
+              ColumnDefinitions="*,140"
               Margin="16,0,0,0">
           <StackPanel Grid.Column="0">
             <TextBlock Text="Robot Hostname/IP" 
@@ -107,7 +111,7 @@
                       IsEnabled="{Binding !IsConnected}"
                       HorizontalAlignment="Stretch"/>
           </StackPanel>
-          <StackPanel Grid.Column="1" Margin="8,0,0,0">
+          <StackPanel Grid.Column="1" Margin="12,0,0,0">
             <TextBlock Text="Port" 
                        FontWeight="SemiBold" FontSize="14"
                        Margin="0,4,0,4"/>
@@ -124,15 +128,6 @@
                    FontWeight="SemiBold" FontSize="14"
                    VerticalAlignment="Bottom"/>
         
-        <!-- Row 2, Col 3: Kill Button (only when connected) -->
-        <Button Grid.Row="2" Grid.Column="3"
-                Content="_Kill Robot Code"
-                Command="{Binding KillRobotCommand}"
-                IsVisible="{Binding IsConnected}"
-                IsEnabled="{Binding KillEnabled}"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"/>
-        
         <!-- Row 3, Col 0-2: Robot State TextBox -->
         <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
                  Classes="readonly"
@@ -144,36 +139,56 @@
                  BorderThickness="1"
                  Margin="0,4"/>
         
-        <!-- Row 3-4, Col 3: Robot Info Panel (only when connected) -->
-        <Border Grid.Row="3" Grid.Column="3" Grid.RowSpan="2"
-                IsVisible="{Binding IsConnected}"
-                Margin="16,4,0,0">
-          <Grid RowDefinitions="Auto,*">
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,4">
-              <TextBlock Text="Autonomous:" 
-                         FontWeight="SemiBold" FontSize="14"
-                         VerticalAlignment="Center"
-                         Margin="0,0,8,0"/>
-              <ComboBox ItemsSource="{Binding AutonList}"
-                        SelectedItem="{Binding SelectedAuton}"
-                        PlaceholderText="Select..."
-                        MinWidth="150"
-                        IsEnabled="{Binding AutonEnabled}"/>
-              <TextBlock Text="Robot Info" 
-                         FontWeight="SemiBold" FontSize="14"
-                         VerticalAlignment="Center"
-                         Margin="16,0,0,0"/>
-            </StackPanel>
-            <TextBox Grid.Row="1"
-                     Classes="readonly"
+        <!-- Row 2-4, Col 3: Robot Info Panel (only when connected) -->
+        <Grid Grid.Row="2" Grid.Column="3" Grid.RowSpan="3"
+              IsVisible="{Binding IsConnected}"
+              ColumnDefinitions="*,Auto"
+              RowDefinitions="*"
+              Margin="16,0,0,0">
+          
+          <!-- Tabbed Control for Auton and Robot Options -->
+          <TabControl Grid.Column="0" Margin="0,0,16,0">
+            <!-- Auton Tab -->
+            <TabItem Header="Auton">
+              <StackPanel Margin="0,8,0,0">
+                <TextBlock Text="Select Autonomous" 
+                           FontWeight="SemiBold" FontSize="14"
+                           Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding AutonList}"
+                          SelectedItem="{Binding SelectedAuton}"
+                          PlaceholderText="Select..."
+                          HorizontalAlignment="Stretch"
+                          IsEnabled="{Binding AutonEnabled}"/>
+              </StackPanel>
+            </TabItem>
+            
+            <!-- Robot Options Tab -->
+            <TabItem Header="Robot Options">
+              <StackPanel Margin="0,8,0,0" Spacing="8">
+                <Button Content="_Kill Robot Code"
+                        Command="{Binding KillRobotCommand}"
+                        IsEnabled="{Binding KillEnabled}"
+                        HorizontalAlignment="Left"/>
+              </StackPanel>
+            </TabItem>
+          </TabControl>
+          
+          <!-- Robot Info Label and TextBox -->
+          <StackPanel Grid.Column="1">
+            <TextBlock Text="Robot Info" 
+                       FontWeight="SemiBold" FontSize="14"
+                       Margin="0,0,0,4"/>
+            <TextBox Classes="readonly"
                      Text="{Binding RobotInfoText}"
                      Background="#8DB4D8"
                      FontSize="12"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
-                     BorderThickness="1"/>
-          </Grid>
-        </Border>
+                     BorderThickness="1"
+                     MinWidth="180"
+                     MinHeight="100"/>
+          </StackPanel>
+        </Grid>
         
         <!-- Row 4, Col 0: Auto Button -->
         <Button Grid.Row="4" Grid.Column="0"
@@ -242,6 +257,28 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
           </ScrollViewer>
+        </Border>
+        
+        <!-- Row 2-4, Col 3: Connection Tips (only when disconnected AND ShowTips is true) -->
+        <Border Grid.Row="2" Grid.Column="3" Grid.RowSpan="3"
+                IsVisible="{Binding ShowTipsPanel}"
+                Background="#E8F4FD"
+                BorderBrush="#B8D4E8"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="12"
+                Margin="16,0,0,0">
+          <StackPanel Spacing="8" VerticalAlignment="Top">
+            <TextBlock Text="Quick Start and Tips" FontWeight="SemiBold" FontSize="14"/>
+            <TextBlock Text="1. Ensure your robot program is running and then click 'Connect to Robot'"
+                       TextWrapping="Wrap" FontSize="12"/>
+            <TextBlock Text="2. You can control your robot with keyboard combos ('[]\' to enable and enter to disable) "
+                       TextWrapping="Wrap" FontSize="12"/>
+            <TextBlock Text=""
+                       TextWrapping="Wrap" FontSize="12"/>
+            <TextBlock Text="Tip! You can disable this box under Preferences"
+                       TextWrapping="Wrap" FontSize="12"/>
+          </StackPanel>
         </Border>
       </Grid>
     </Panel>

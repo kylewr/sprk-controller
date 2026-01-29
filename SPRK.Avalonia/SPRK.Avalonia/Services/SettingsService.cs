@@ -12,6 +12,7 @@ public class AppSettings
     public List<string> SavedHosts { get; set; } = [];
     public bool UsingBackground { get; set; } = false;
     public int CameraStreamPort { get; set; } = 8080;
+    public bool ShowTips { get; set; } = true;
 }
 
 public static class SettingsService
