@@ -1,8 +1,9 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SPRK.Avalonia.ViewModels"
+             xmlns:conv="using:SPRK.Avalonia.Converters"
              mc:Ignorable="d" d:DesignWidth="967" d:DesignHeight="568"
              x:Class="SPRK.Avalonia.Views.MainView"
              x:DataType="vm:MainViewModel">
@@ -23,6 +24,12 @@
     </Style>
     <Style Selector="TextBox.readonly:focus /template/ Border#PART_BorderElement">
       <Setter Property="Background" Value="{Binding $parent[TextBox].Background}"/>
+    </Style>
+    <!-- Compact tab styling -->
+    <Style Selector="TabControl.compact TabItem">
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Padding" Value="10,5"/>
+      <Setter Property="MinHeight" Value="28"/>
     </Style>
   </UserControl.Styles>
 
@@ -147,13 +154,13 @@
               Margin="16,0,0,0">
           
           <!-- Tabbed Control for Auton and Robot Options -->
-          <TabControl Grid.Column="0" Margin="0,0,16,0">
+          <TabControl Grid.Column="0" Classes="compact" Margin="0,0,16,0" Padding="0">
             <!-- Auton Tab -->
             <TabItem Header="Auton">
-              <StackPanel Margin="0,8,0,0">
+              <StackPanel Margin="0,4,0,0">
                 <TextBlock Text="Select Autonomous" 
-                           FontWeight="SemiBold" FontSize="14"
-                           Margin="0,0,0,4"/>
+                           FontWeight="SemiBold" FontSize="12"
+                           Margin="0,0,0,2"/>
                 <ComboBox ItemsSource="{Binding AutonList}"
                           SelectedItem="{Binding SelectedAuton}"
                           PlaceholderText="Select..."
@@ -162,9 +169,80 @@
               </StackPanel>
             </TabItem>
             
+            <!-- Key View Tab -->
+            <TabItem Header="Key View">
+              <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0" VerticalAlignment="Top">
+                <!-- Left Stick (WASD) -->
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock Text="Left Stick" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                  <Grid ColumnDefinitions="28,28,28" RowDefinitions="28,28">
+                    <Border Grid.Row="0" Grid.Column="1" Background="{Binding KeyW, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}" 
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="W" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" Background="{Binding KeyA, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="A" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Background="{Binding KeyS, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="S" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="2" Background="{Binding KeyD, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="D" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                  </Grid>
+                </StackPanel>
+                
+                <!-- Right Stick (Arrow Keys) -->
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock Text="Right Stick" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                  <Grid ColumnDefinitions="28,28,28" RowDefinitions="28,28">
+                    <Border Grid.Row="0" Grid.Column="1" Background="{Binding KeyUp, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="↑" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" Background="{Binding KeyLeft, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="←" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Background="{Binding KeyDown, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="↓" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="2" Background="{Binding KeyRight, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
+                      <TextBlock Text="→" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                    </Border>
+                  </Grid>
+                </StackPanel>
+                
+                <!-- Triggers and Bumpers -->
+                <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="28,28" VerticalAlignment="Bottom">
+                  <Border Grid.Row="0" Grid.Column="0" Background="{Binding KeyQ, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                          BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="6,2" Margin="0,0,4,0">
+                    <TextBlock Text="Q/LT" FontSize="10" VerticalAlignment="Center"/>
+                  </Border>
+                  <Border Grid.Row="0" Grid.Column="1" Background="{Binding KeyE, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                          BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="6,2">
+                    <TextBlock Text="E/RT" FontSize="10" VerticalAlignment="Center"/>
+                  </Border>
+                  <Border Grid.Row="1" Grid.Column="0" Background="{Binding KeyU, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                          BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="6,2" Margin="0,0,4,0">
+                    <TextBlock Text="U/LB" FontSize="10" VerticalAlignment="Center"/>
+                  </Border>
+                  <Border Grid.Row="1" Grid.Column="1" Background="{Binding KeyO, Converter={x:Static conv:BoolConverters.ToBoxBrushes}}"
+                          BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="6,2">
+                    <TextBlock Text="O/RB" FontSize="10" VerticalAlignment="Center"/>
+                  </Border>
+                </Grid>
+              </StackPanel>
+            </TabItem>
+            
             <!-- Robot Options Tab -->
-            <TabItem Header="Robot Options">
-              <StackPanel Margin="0,8,0,0" Spacing="8">
+            <TabItem Header="Options">
+              <StackPanel Margin="0,4,0,0" Spacing="8">
                 <Button Content="_Kill Robot Code"
                         Command="{Binding KillRobotCommand}"
                         IsEnabled="{Binding KillEnabled}"
@@ -176,17 +254,17 @@
           <!-- Robot Info Label and TextBox -->
           <StackPanel Grid.Column="1">
             <TextBlock Text="Robot Info" 
-                       FontWeight="SemiBold" FontSize="14"
-                       Margin="0,0,0,4"/>
+                       FontWeight="SemiBold" FontSize="12"
+                       Margin="0,0,0,2"/>
             <TextBox Classes="readonly"
                      Text="{Binding RobotInfoText}"
                      Background="#8DB4D8"
-                     FontSize="12"
+                     FontSize="11"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
                      BorderThickness="1"
-                     MinWidth="180"
-                     MinHeight="100"/>
+                     MinWidth="160"
+                     MinHeight="90"/>
           </StackPanel>
         </Grid>
         

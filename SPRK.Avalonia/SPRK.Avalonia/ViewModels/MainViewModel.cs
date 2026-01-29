@@ -159,6 +159,9 @@ public partial class MainViewModel : ViewModelBase
             pressedKeys.Add(key);
         }
 
+        // Update key view properties
+        UpdateKeyViewState(key, true);
+
         // Enter key sends disable signal (matches WIN_MAIN)
         if (key == Key.Enter && IsConnected)
         {
@@ -166,7 +169,6 @@ public partial class MainViewModel : ViewModelBase
         }
 
         // Three-finger combo: [ ] \ to enable teleop when disabled
-        // Avalonia uses OemPipe for \, OemCloseBrackets for ], OemOpenBrackets for [
         bool hasCombo;
         lock (keyLock)
         {
@@ -187,6 +189,41 @@ public partial class MainViewModel : ViewModelBase
         {
             pressedKeys.Remove(key);
         }
+
+        // Update key view properties
+        UpdateKeyViewState(key, false);
+    }
+
+    private void UpdateKeyViewState(Key key, bool pressed)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            switch (key)
+            {
+                case Key.W: KeyW = pressed; break;
+                case Key.A: KeyA = pressed; break;
+                case Key.S: KeyS = pressed; break;
+                case Key.D: KeyD = pressed; break;
+                case Key.Up: KeyUp = pressed; break;
+                case Key.Down: KeyDown = pressed; break;
+                case Key.Left: KeyLeft = pressed; break;
+                case Key.Right: KeyRight = pressed; break;
+                case Key.Q: KeyQ = pressed; break;
+                case Key.E: KeyE = pressed; break;
+                case Key.I: KeyI = pressed; break;
+                case Key.J: KeyJ = pressed; break;
+                case Key.K: KeyK = pressed; break;
+                case Key.L: KeyL = pressed; break;
+                case Key.U: KeyU = pressed; break;
+                case Key.O: KeyO = pressed; break;
+                case Key.Z: KeyZ = pressed; break;
+                case Key.X: KeyX = pressed; break;
+                case Key.C: KeyC = pressed; break;
+                case Key.V: KeyV = pressed; break;
+                case Key.OemComma: KeyComma = pressed; break;
+                case Key.OemPeriod: KeyPeriod = pressed; break;
+            }
+        });
     }
 
     [RelayCommand]
@@ -556,6 +593,28 @@ public partial class MainViewModel : ViewModelBase
     {
         ShowTips = !ShowTips;
     }
+
+    // Add these observable properties with the others for Key View visualization
+    [ObservableProperty]
+    private bool _keyW, _keyA, _keyS, _keyD;
+
+    [ObservableProperty]
+    private bool _keyUp, _keyDown, _keyLeft, _keyRight;
+
+    [ObservableProperty]
+    private bool _keyQ, _keyE;
+
+    [ObservableProperty]
+    private bool _keyI, _keyJ, _keyK, _keyL;
+
+    [ObservableProperty]
+    private bool _keyU, _keyO;
+
+    [ObservableProperty]
+    private bool _keyZ, _keyX, _keyC, _keyV;
+
+    [ObservableProperty]
+    private bool _keyComma, _keyPeriod;
 }
 
 // Simple class for console messages with color
