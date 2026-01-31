@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:SPRK.Avalonia.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="SPRK.Avalonia.Views.CameraStreamWindow"
+        x:DataType="vm:CameraStreamViewModel"
+        Width="800" Height="600"
+        Title="Camera Stream"
+        CanResize="True">
+  <Panel>
+    <Image Source="{Binding CurrentFrame}" Stretch="Uniform"/>
+    <TextBlock Text="Loading camera stream..."
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               FontSize="16"
+               Foreground="Gray"
+               IsVisible="{Binding !IsLoaded}"/>
+  </Panel>
+</Window>

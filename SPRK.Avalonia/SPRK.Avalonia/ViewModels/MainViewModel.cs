@@ -14,6 +14,9 @@ using SPRK.Avalonia.Services;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Platform;
+using SPRK.Avalonia.Views;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia;
 
 namespace SPRK.Avalonia.ViewModels;
 
@@ -45,6 +48,7 @@ public partial class MainViewModel : ViewModelBase
 
     private Thread? inputThread;
     private CancellationTokenSource? inputCts;
+    private CameraStreamWindow? cameraWindow;
 
     [ObservableProperty]
     private string _hostname = SettingsService.Default.Hostname;
@@ -390,6 +394,31 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void LaunchCameraStream()
+    {
+        if (cameraWindow != null)
+        {
+            // Camera window already open
+            cameraWindow.Activate();
+            return;
+        }
+
+        _ = connection.SendCommand("cam-start");
+        
+        string url = $"http://{Hostname}:{SettingsService.Default.CameraStreamPort}/?action=stream";
+        cameraWindow = new CameraStreamWindow($"{Hostname} - Camera Stream", url, () =>
+        {
+            cameraWindow = null;
+            if (connection.IsConnected)
+            {
+                _ = connection.SendCommand("cam-stop");
+            }
+        });
+
+        cameraWindow.Show();
+    }
+
+    [RelayCommand]
     private void ClearConsole()
     {
         ConsoleMessages.Clear();
@@ -504,6 +533,21 @@ public partial class MainViewModel : ViewModelBase
     private void HandleDisconnected()
     {
         StopInputLoop();
+        
+        // Close camera window if open (matches WIN_MAIN behavior)
+        if (cameraWindow != null)
+        {
+            try
+            {
+                cameraWindow.Close();
+                cameraWindow = null;
+            }
+            catch (Exception ex)
+            {
+                AddConsoleText($"[CAMERA] Error closing camera stream: {ex.Message}", ConsoleColor.Red);
+            }
+        }
+        
         RobotStateText = "Disconnected";
         RobotStateColor = Brushes.LightGray;
         IsConnected = false;

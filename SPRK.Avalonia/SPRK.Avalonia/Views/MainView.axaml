@@ -248,6 +248,10 @@
                         Command="{Binding KillRobotCommand}"
                         IsEnabled="{Binding KillEnabled}"
                         HorizontalAlignment="Left"/>
+                <Button Content="Launch _Camera Stream"
+                        Command="{Binding LaunchCameraStreamCommand}"
+                        IsEnabled="{Binding CameraEnabled}"
+                        HorizontalAlignment="Left"/>
               </StackPanel>
             </TabItem>
           </TabControl>

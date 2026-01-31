@@ -30,4 +30,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\SPRK.Core\SPRK.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\CameraStreamWindow.axaml.cs">
+      <DependentUpon>CameraStreamWindow.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

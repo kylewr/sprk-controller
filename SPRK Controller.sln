@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK.Avalonia", "SPRK.Avalo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK.Avalonia.Desktop", "SPRK.Avalonia\SPRK.Avalonia.Desktop\SPRK.Avalonia.Desktop.csproj", "{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPRK.Avalonia.Browser", "SPRK.Avalonia\SPRK.Avalonia.Browser\SPRK.Avalonia.Browser.csproj", "{2F350BCE-9D53-FBC3-40A6-5C5ACE6B4D40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B8F54EF-8C48-4311-8270-F3FF1A4F71D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F350BCE-9D53-FBC3-40A6-5C5ACE6B4D40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F350BCE-9D53-FBC3-40A6-5C5ACE6B4D40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F350BCE-9D53-FBC3-40A6-5C5ACE6B4D40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F350BCE-9D53-FBC3-40A6-5C5ACE6B4D40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
